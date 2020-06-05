@@ -1,0 +1,14 @@
+__pycache__/
+**/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*/__pycache__/
+*.pyc
+.idea/
+env
+venv
+*.log
+logs
+logs/*.log
+.mypy_cache/
+db.sqlite3
