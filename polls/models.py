@@ -16,11 +16,11 @@ class Question(models.Model):
     # 3 types of questions:
     TEXT_ANSWER = 'TX'
     ONE_CHOICE = '1C'
-    MULTIPLE_CHOIUCES = 'MC'
+    MULTIPLE_CHOICES = 'MC'
     TYPE_CHOICES = (
         (TEXT_ANSWER, 'Text answer'),
         (ONE_CHOICE, 'One choice'),
-        (MULTIPLE_CHOIUCES, 'Multiple choices'),
+        (MULTIPLE_CHOICES, 'Multiple choices'),
     )
     type = models.CharField(
         max_length=2,
