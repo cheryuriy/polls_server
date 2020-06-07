@@ -2,11 +2,17 @@ from django.db import models
 
 
 class Poll(models.Model):
-    """Poll that admin created."""
+    """Poll that admin are creating."""
+
     name = models.CharField(max_length=50)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
     description = models.CharField(max_length=500)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-start_date', '-end_date']),
+            ]
 
     def __str__(self):
         return self.name
@@ -27,7 +33,7 @@ class Question(models.Model):
         choices=TYPE_CHOICES,
         default=TEXT_ANSWER
     )
-    text = models.CharField(max_length=250)
+    question_text = models.CharField(max_length=250)
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='questions')
 
     def __str__(self):
@@ -43,7 +49,7 @@ class Choice(models.Model):
     """
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
-    text = models.CharField(max_length=100, null=True, blank=True)
+    choice_text = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return self.text
@@ -51,7 +57,7 @@ class Choice(models.Model):
 
 class UserPoll(models.Model):
     """Poll that user answered."""
-    person_id = models.IntegerField()
+    person_id = models.IntegerField(db_index=True)
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
 
 
@@ -63,4 +69,4 @@ class UserAnswer(models.Model):
     """
     user_poll = models.ForeignKey(UserPoll, on_delete=models.CASCADE, related_name='choices')
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
-    text = models.CharField(max_length=300, null=True, blank=True)
+    answer_text = models.CharField(max_length=300, null=True, blank=True)
