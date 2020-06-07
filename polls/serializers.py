@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
@@ -81,15 +82,22 @@ class CreateUserAnswerSerializer(serializers.ModelSerializer):
 
 
 class CreateUserPollSerializer(serializers.ModelSerializer):
+    poll_id = serializers.IntegerField()
     choices = CreateUserAnswerSerializer(many=True)
 
     class Meta:
         model = UserPoll
-        fields = '__all__'
+        fields = ['poll_id', 'person_id', 'choices']
 
     def create(self, validated_data):
         """Creating UserPoll and UserAnswers after checking types of questions."""
 
+        poll = Poll.objects.filter(id=validated_data['poll_id']).first()
+        if not poll.start_date or not poll.end_date:
+            raise ValidationError("start_date and end_date should be settled.")
+        now = timezone.now().date()
+        if not (poll.start_date <= now <= poll.end_date):
+            raise ValidationError("Date should be actual: start_date <= now <= end_date")
         choices = validated_data.pop('choices')
         choices_dict = {}
         for choice_data in choices:
@@ -102,9 +110,9 @@ class CreateUserPollSerializer(serializers.ModelSerializer):
         questions_set = set()
         for choice in choices:
             # Checking types of questions and answers:
-            if choices_dict[choice.id].get("choice_text") is not None and choice.question.type != Question.TEXT_ANSWER:
+            if choices_dict[choice.id].get("answer_text") is not None and choice.question.type != Question.TEXT_ANSWER:
                 raise ValidationError('Text given for not text type question.')
-            if choices_dict[choice.id].get("choice_text") is None and choice.question.type == Question.TEXT_ANSWER:
+            if choices_dict[choice.id].get("answer_text") is None and choice.question.type == Question.TEXT_ANSWER:
                 raise ValidationError('No text given for text type question.')
             if choice.question.id in questions_set and choice.question.type != Question.MULTIPLE_CHOICES:
                 raise ValidationError('Too many choices for Not MULTIPLE CHOICES type question.')
