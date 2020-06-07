@@ -11,4 +11,3 @@ venv
 logs
 logs/*.log
 .mypy_cache/
-db.sqlite3
