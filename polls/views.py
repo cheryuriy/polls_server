@@ -41,7 +41,7 @@ class UserPollCreateView(generics.CreateAPIView):
 class ActivePollsListView(generics.ListAPIView):
     """List of active( by date) polls."""
 
-    queryset = Poll.objects.filter(start_date__isnull=False, end_date__gte=timezone.now().date()).all()
+    queryset = Poll.objects.filter(start_date__lte=timezone.now().date(), end_date__gte=timezone.now().date()).all()
     serializer_class = PollSerializer
     permission_classes = (AllowAny,)
 
